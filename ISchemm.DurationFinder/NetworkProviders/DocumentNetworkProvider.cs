@@ -26,7 +26,7 @@ namespace ISchemm.DurationFinder.NetworkProviders {
 
             var web = new HtmlWeb();
             var document = await web.LoadFromWebAsync(uri, encoding: null, credentials: null);
-            return _documentProvider.GetDuration(document);
+            return await _documentProvider.GetDurationAsync(document);
         }
     }
 }

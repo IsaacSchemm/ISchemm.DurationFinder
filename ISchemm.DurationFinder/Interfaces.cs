@@ -9,6 +9,6 @@ namespace ISchemm.DurationFinder {
     }
 
     public interface IDocumentProvider {
-        TimeSpan? GetDuration(HtmlDocument document);
+        Task<TimeSpan?> GetDurationAsync(HtmlDocument document);
     }
 }

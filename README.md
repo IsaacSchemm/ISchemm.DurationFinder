@@ -4,25 +4,27 @@ This library will attempt detect the duration of a video, given a URL that
 points to either a raw video resource (that you might put in a `<video>` tag)
 or a supported video-sharing site.
 
-## Usage
-
-The DurationFinder library has two categories of "providers": implementations
-of `IDocumentProvider` that pull data from an HTML page, and implementations
-of `INetworkProvider` that pull data from a URL, given its content type.
-
-Most users won't have to use anything beyond the static object `Providers.All`
-and its extension function `GetDurationAsync(Uri)`. This function will make a
-HEAD request to the URL to determine its content type, and then try whichever
-providers are appropriate; the first duration returned by any of the available
-providers will be used. If no duration can be detected, a null value will be
-returned instead.
-
 ## Providers
 
-* Implementations of **IDocumentProvider**
-    * **SchemaOrgProvider** (pages with a schema.org style `<meta itemprop="duration">` tag, such as YouTube and SoundCloud)
-    * **ChainedDocumentProvider** (combines multiple IDocumentProviders, attempting them in sequence)
-* Implementations of **INetworkProvider**
-    * **OEmbedJsonProvider** (oEmbed JSON data with a non-standard `duration` field)
-    * **DocumentNetworkProvider** (fetches HTML data and passes it to an IDocumentProvider)
-    * **ChainedNetworkProvider** (combines multiple IDocumentProviders, attempting them in sequence)
+* Network providers (read from URL)
+    * **OEmbedJsonProvider** (for oEmbed JSON data with a non-standard `duration` field)
+
+* Document providers (read from HTML)
+    * **SchemaOrgProvider** (for pages with a schema.org style `<meta itemprop="duration">` tag - i.e. YouTube, SoundCloud)
+    * **OEmbedDiscoveryProvider** (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint - i.e. Vimeo)
+
+Recommended flow:
+
+* Use `ChainedDocumentProvider` to combine multiple document providers
+* Use `DocumentNetworkProvider` to convert the resulting document provider to a location provider
+* Use `ChainedNetworkProvider` to combine it with your other location providers
+* Call the extension function `GetDurationAsync(Uri)` on the combined location provider
+
+This will perform a HEAD request to the server to determine the content type,
+and pass the type to each location provider (so the actual data fetch can be]
+skipped if the provider doesn't support the type). The first provider to come
+up with a valid duration value will be used, and any remaining providers will
+be skipped.
+
+Or - just use `GetDurationAsync(Uri)` on the static object `Providers.All`
+and the library will do this for you.

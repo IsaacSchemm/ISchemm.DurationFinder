@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder.DocumentProviders {
     public class ChainedDocumentProvider : IDocumentProvider {
@@ -15,9 +16,9 @@ namespace ISchemm.DurationFinder.DocumentProviders {
             _providers = providers.ToArray();
         }
 
-        public TimeSpan? GetDuration(HtmlDocument document) {
+        public async Task<TimeSpan?> GetDurationAsync(HtmlDocument document) {
             foreach (var provider in _providers)
-                if (provider.GetDuration(document) is TimeSpan ts)
+                if (await provider.GetDurationAsync(document) is TimeSpan ts)
                     return ts;
             return null;
         }
