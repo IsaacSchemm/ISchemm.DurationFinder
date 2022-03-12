@@ -3,8 +3,8 @@ using System;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
-    public class OEmbedDiscoveryProvider : IDocumentProvider {
-        private readonly OEmbedJsonProvider _oEmbedJsonProvider = new OEmbedJsonProvider();
+    public class OEmbedDocumentProvider : IDocumentProvider {
+        private readonly OEmbedNetworkProvider _oEmbedJsonProvider = new OEmbedNetworkProvider();
 
         public async Task<TimeSpan?> GetDurationAsync(HtmlDocument document) {
             foreach (var node in document.DocumentNode.Descendants("link"))

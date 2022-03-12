@@ -7,11 +7,11 @@ or a supported video-sharing site.
 ## Providers
 
 * Network providers (read from URL)
-    * **OEmbedJsonProvider** (for oEmbed JSON data with a non-standard `duration` field)
+    * **OEmbedNetworkProvider** (for oEmbed JSON endpoints with a non-standard `duration` field, such as Vimeo)
 
 * Document providers (read from HTML)
-    * **SchemaOrgProvider** (for pages with a schema.org style `<meta itemprop="duration">` tag - i.e. YouTube, SoundCloud)
-    * **OEmbedDiscoveryProvider** (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint - i.e. Vimeo)
+    * **SchemaOrgDocumentProvider** (for pages with a schema.org style `<meta itemprop="duration">` tag, such as YouTube and SoundCloud)
+    * **OEmbedDocumentProvider** (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint)
 
 Recommended flow:
 

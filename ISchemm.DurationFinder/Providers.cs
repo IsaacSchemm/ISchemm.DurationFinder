@@ -1,10 +1,10 @@
 ﻿namespace ISchemm.DurationFinder {
     public static class Providers {
         public static readonly INetworkProvider All = new ChainedNetworkProvider(
-            new OEmbedJsonProvider(),
+            new OEmbedNetworkProvider(),
             new DocumentNetworkProvider(
                 new ChainedDocumentProvider(
-                    new SchemaOrgProvider(),
-                    new OEmbedDiscoveryProvider())));
+                    new SchemaOrgDocumentProvider(),
+                    new OEmbedDocumentProvider())));
     }
 }

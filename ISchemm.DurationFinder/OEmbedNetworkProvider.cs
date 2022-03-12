@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
-    public class OEmbedJsonProvider : INetworkProvider {
+    public class OEmbedNetworkProvider : INetworkProvider {
         private class OEmbedResponse {
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching source schema")]
             public double? duration { get; set; }
