@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ namespace ISchemm.DurationFinder {
             public double? duration { get; set; }
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage, IEnumerable<IDurationProvider> linkHandlers) {
+        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage) {
             if (responseMessage.Content.Headers.ContentType.MediaType != "application/json")
                 return null;
 

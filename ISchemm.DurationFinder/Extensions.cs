@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -8,11 +10,38 @@ namespace ISchemm.DurationFinder {
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        public static async Task<TimeSpan?> GetDurationAsync(this IDurationProvider provider, Uri uri) {
-            using var req = new HttpRequestMessage(HttpMethod.Get, uri);
-            req.Headers.UserAgent.ParseAdd(UserAgentString);
-            using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
-            return await provider.GetDurationAsync(resp, new[] { provider });
+        public static async Task<TimeSpan?> GetDurationAsync(this IDurationProvider provider, Uri initial_uri) {
+            var canonical = new List<Uri> { initial_uri };
+
+            for (int i = 0; i < canonical.Count; i++) {
+                Uri uri = canonical[i];
+
+                using var req = new HttpRequestMessage(HttpMethod.Get, uri);
+                req.Headers.UserAgent.ParseAdd(UserAgentString);
+                using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+
+                switch (resp.Content.Headers.ContentType.MediaType) {
+                    case "text/html":
+                    case "application/xhtml+xml":
+                        var document = new HtmlDocument();
+                        string html = await resp.Content.ReadAsStringAsync();
+                        document.LoadHtml(html);
+
+                        foreach (var node in document.DocumentNode.Descendants("link"))
+                            if (node.GetAttributeValue("rel", null) == "canonical")
+                                if (node.GetAttributeValue("href", null) is string str)
+                                    if (Uri.TryCreate(resp.Headers.Location, HtmlEntity.DeEntitize(str), out Uri new_uri))
+                                        if (!canonical.Contains(new_uri))
+                                            canonical.Add(new_uri);
+
+                        break;
+                }
+
+                if (await provider.GetDurationAsync(resp) is TimeSpan ts)
+                    return ts;
+            }
+
+            return null;
         }
     }
 }

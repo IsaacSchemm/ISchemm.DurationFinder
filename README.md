@@ -6,10 +6,10 @@ or a supported video-sharing site.
 
 ## Providers
 
-* SchemaOrgDurationProvider (for pages with a schema.org style `<meta itemprop="duration">` tag, such as YouTube and SoundCloud)
-* OpenGraphDurationProvider (for pages with an OpenGraph style `<meta property="video:duration">` tag, such as Dailymotion)
+* SchemaOrgDurationProvider (for pages with a schema.org style `<meta itemprop="duration">` tag)
+* OpenGraphDurationProvider (for pages with an OpenGraph style `<meta property="video:duration">` tag)
 * OEmbedDiscoveryDurationProvider (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint)
-* OEmbedJsonDurationProvider (for oEmbed JSON endpoints that provider a non-standard `duration` field, such as Vimeo)
+* OEmbedJsonDurationProvider (for oEmbed JSON endpoints that include a non-standard `duration` field)
 
 ## Support
 
@@ -20,12 +20,12 @@ or a supported video-sharing site.
 
 ## Usage
 
-* Use `ChainedDurationProvider` to combine multiple providers
-* Call the extension function `GetDurationAsync(Uri)` on the combined location provider
+* Use `ChainedDurationProvider` to combine multiple providers (or just use the static object `Providers.All`)
+* Call the extension function `GetDurationAsync(Uri)` on the resulting provider object
 
 Each provider will check the content type of the GET response, and only
 download what data is necessary. The first provider to come up with a valid
-duration value will be used, and any remaining providers will be skipped.
-
-Or - just use `GetDurationAsync(Uri)` on the static object `Providers.All`
-and the library will do this for you.
+duration value will be used, and any remaining providers will be skipped. If
+none of the providers come up with a result, `GetDurationAsync(Uri)` will
+check for a `<link rel="canonical">` tag and try again (provided that the URL
+in the tag has not been attempted yet).

@@ -1,12 +1,11 @@
 ﻿using HtmlAgilityPack;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public class OpenGraphDurationProvider : IDurationProvider {
-        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage, IEnumerable<IDurationProvider> linkHandlers) {
+        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage) {
             if (responseMessage.Content.Headers.ContentType.MediaType != "text/html")
                 if (responseMessage.Content.Headers.ContentType.MediaType != "application/xhtml+xml")
                     return null;
