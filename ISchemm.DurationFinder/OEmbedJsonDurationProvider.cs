@@ -10,13 +10,13 @@ namespace ISchemm.DurationFinder {
             public double? duration { get; set; }
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage) {
-            if (responseMessage.Content.Headers.ContentType.MediaType != "application/json")
+        public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
+            if (!httpContent.IsOfType("text/json", "application/json"))
                 return null;
 
-            await responseMessage.Content.LoadIntoBufferAsync();
+            await httpContent.LoadIntoBufferAsync();
 
-            var json = await responseMessage.Content.ReadAsStringAsync();
+            var json = await httpContent.ReadAsStringAsync();
             var obj = JsonSerializer.Deserialize<OEmbedResponse>(json);
             if (obj?.duration is double x)
                 return TimeSpan.FromSeconds(x);

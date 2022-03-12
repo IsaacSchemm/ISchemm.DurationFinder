@@ -4,6 +4,6 @@ using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public interface IDurationProvider {
-        Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage);
+        Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent);
     }
 }

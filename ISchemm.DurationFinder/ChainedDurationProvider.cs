@@ -16,9 +16,9 @@ namespace ISchemm.DurationFinder {
             _providers = providers.ToArray();
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage) {
+        public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
             foreach (var provider in _providers)
-                if (await provider.GetDurationAsync(responseMessage) is TimeSpan ts)
+                if (await provider.GetDurationAsync(originalLocation, httpContent) is TimeSpan ts)
                     return ts;
             return null;
         }

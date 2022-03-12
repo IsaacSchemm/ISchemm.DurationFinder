@@ -10,6 +10,8 @@ or a supported video-sharing site.
 * OpenGraphDurationProvider (for pages with an OpenGraph style `<meta property="video:duration">` tag)
 * OEmbedDiscoveryDurationProvider (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint)
 * OEmbedJsonDurationProvider (for oEmbed JSON endpoints that include a non-standard `duration` field)
+* HlsPlaylistDurationProvider (for HLS VOD playlists)
+* HlsChunklistDurationProvider (for HLS VOD chunklists)
 
 ## Support
 
@@ -17,6 +19,7 @@ or a supported video-sharing site.
 * SoundCloud (SchemaOrgDurationProvider)
 * Vimeo (OEmbedDiscoveryDurationProvider)
 * Dailymotion (OpenGraphDurationProvider)
+* HLS (.m3u8) (HlsPlaylistDurationProvider)
 
 ## Usage
 

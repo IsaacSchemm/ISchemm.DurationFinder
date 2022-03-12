@@ -5,6 +5,7 @@
             new OpenGraphDurationProvider(),
             new OEmbedDiscoveryDurationProvider(),
             new OEmbedJsonDurationProvider(),
-            new HLSChunklistDurationProvider());
+            new HlsPlaylistDurationProvider(),
+            new HlsChunklistDurationProvider());
     }
 }

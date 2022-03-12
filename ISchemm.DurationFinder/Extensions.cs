@@ -10,6 +10,14 @@ namespace ISchemm.DurationFinder {
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        internal static bool IsOfType(this HttpContent content, params string[] types) {
+            foreach (string t in types)
+                if (string.Equals(content.Headers.ContentType.MediaType, t, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+            return false;
+        }
+
         public static async Task<TimeSpan?> GetDurationAsync(this IDurationProvider provider, Uri initial_uri) {
             var canonical = new List<Uri> { initial_uri };
 
@@ -20,7 +28,7 @@ namespace ISchemm.DurationFinder {
                 req.Headers.UserAgent.ParseAdd(UserAgentString);
                 using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
 
-                if (await provider.GetDurationAsync(resp) is TimeSpan ts)
+                if (await provider.GetDurationAsync(uri, resp.Content) is TimeSpan ts)
                     return ts;
 
                 switch (resp.Content.Headers.ContentType.MediaType) {

@@ -76,11 +76,6 @@ namespace ISchemm.DurationFinder.Tests {
         }
 
         [TestMethod]
-        public async Task TestHLS_2C() {
-            await TestUrl(600, "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/v5/prog_index.m3u8");
-        }
-
-        [TestMethod]
         public async Task TestHLS_3() {
             await TestUrl(null, "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8");
         }
