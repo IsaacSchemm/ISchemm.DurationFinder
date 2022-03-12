@@ -1,10 +1,6 @@
 ﻿using HtmlAgilityPack;
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
@@ -15,17 +11,15 @@ namespace ISchemm.DurationFinder {
             _documentProvider = documentProvider;
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(Uri uri, ContentType contentType) {
-            switch (contentType.MediaType) {
-                case "text/html":
-                case "application/xhtml+xml":
-                    break;
-                default:
-                    return null;
-            }
+        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage) {
+            if (!responseMessage.ContainsContentType("text/html", "application/xhtml+xml"))
+                return null;
 
-            var web = new HtmlWeb();
-            var document = await web.LoadFromWebAsync(uri, encoding: null, credentials: null);
+            await responseMessage.Content.LoadIntoBufferAsync();
+
+            var document = new HtmlDocument();
+            string html = await responseMessage.Content.ReadAsStringAsync();
+            document.LoadHtml(html);
             return await _documentProvider.GetDurationAsync(document);
         }
     }

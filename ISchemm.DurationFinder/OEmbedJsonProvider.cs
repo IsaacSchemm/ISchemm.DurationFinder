@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Net;
-using System.Net.Mime;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -11,17 +10,14 @@ namespace ISchemm.DurationFinder {
             public double? duration { get; set; }
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(Uri uri, ContentType contentType) {
-            if (contentType.MediaType != "application/json")
+        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage) {
+            if (!responseMessage.ContainsContentType("application/json"))
                 return null;
 
-            var req = WebRequest.CreateHttp(uri);
-            req.UserAgent = Extensions.UserAgentString;
-            req.Method = "GET";
+            await responseMessage.Content.LoadIntoBufferAsync();
 
-            using var resp = await req.GetResponseAsync();
-            using var stream = resp.GetResponseStream();
-            var obj = await JsonSerializer.DeserializeAsync<OEmbedResponse>(stream);
+            var json = await responseMessage.Content.ReadAsStringAsync();
+            var obj = JsonSerializer.Deserialize<OEmbedResponse>(json);
             if (obj?.duration is double x)
                 return TimeSpan.FromSeconds(x);
 
