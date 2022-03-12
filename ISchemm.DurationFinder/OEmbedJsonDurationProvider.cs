@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
-    public class OEmbedNetworkProvider : INetworkProvider {
+    public class OEmbedJsonDurationProvider : IDurationProvider {
         private class OEmbedResponse {
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching source schema")]
             public double? duration { get; set; }
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage) {
-            if (!responseMessage.ContainsContentType("application/json"))
+        public async Task<TimeSpan?> GetDurationAsync(HttpResponseMessage responseMessage, IEnumerable<IDurationProvider> linkHandlers) {
+            if (responseMessage.Content.Headers.ContentType.MediaType != "application/json")
                 return null;
 
             await responseMessage.Content.LoadIntoBufferAsync();

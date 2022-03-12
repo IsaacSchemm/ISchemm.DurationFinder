@@ -51,6 +51,11 @@ namespace ISchemm.DurationFinder.Tests {
         }
 
         [TestMethod]
+        public async Task TestYouTubeRedirect() {
+            await TestUrl(424, "https://tinyurl.com/mshmkvyf");
+        }
+
+        [TestMethod]
         public async Task TestMP4_1() {
             await TestUrl(596.474195, "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
         }
