@@ -5,6 +5,7 @@
             new DocumentNetworkProvider(
                 new ChainedDocumentProvider(
                     new SchemaOrgDocumentProvider(),
+                    new OpenGraphDocumentProvider(),
                     new OEmbedDocumentProvider())));
     }
 }

@@ -11,6 +11,7 @@ or a supported video-sharing site.
 
 * Document providers (read from HTML)
     * **SchemaOrgDocumentProvider** (for pages with a schema.org style `<meta itemprop="duration">` tag, such as YouTube and SoundCloud)
+    * **OpenGraphDocumentProvider** (for pages with an OpenGraph style `<meta property="video:duration">` tag, such as Dailymotion)
     * **OEmbedDocumentProvider** (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint)
 
 Recommended flow:
