@@ -20,6 +20,9 @@ namespace ISchemm.DurationFinder {
                 req.Headers.UserAgent.ParseAdd(UserAgentString);
                 using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
 
+                if (await provider.GetDurationAsync(resp) is TimeSpan ts)
+                    return ts;
+
                 switch (resp.Content.Headers.ContentType.MediaType) {
                     case "text/html":
                     case "application/xhtml+xml":
@@ -36,9 +39,6 @@ namespace ISchemm.DurationFinder {
 
                         break;
                 }
-
-                if (await provider.GetDurationAsync(resp) is TimeSpan ts)
-                    return ts;
             }
 
             return null;

@@ -114,5 +114,30 @@ namespace ISchemm.DurationFinder.Tests {
         public async Task TestSoundCloud_1() {
             await TestUrl(280, "https://soundcloud.com/jamieirl/pass-feat-marcy-nabors");
         }
+
+        [TestMethod]
+        public async Task TestCircular_1() {
+            await TestUrl(715, "https://www.lakora.us/durationfinder/circular1.html");
+        }
+
+        [TestMethod]
+        public async Task TestCircular_2() {
+            await TestUrl(715, "https://www.lakora.us/durationfinder/circular2.html");
+        }
+
+        [TestMethod]
+        public async Task TestCircular_3() {
+            await TestUrl(715, "https://www.lakora.us/durationfinder/circular3.html");
+        }
+
+        [TestMethod]
+        public async Task TestCircular_A() {
+            await TestUrl(null, "https://www.lakora.us/durationfinder/circularA.html");
+        }
+
+        [TestMethod]
+        public async Task TestCircular_B() {
+            await TestUrl(null, "https://www.lakora.us/durationfinder/circularB.html");
+        }
     }
 }
