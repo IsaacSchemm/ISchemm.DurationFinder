@@ -1,7 +1,4 @@
-﻿using ISchemm.DurationFinder.DocumentProviders;
-using ISchemm.DurationFinder.NetworkProviders;
-
-namespace ISchemm.DurationFinder {
+﻿namespace ISchemm.DurationFinder {
     public static class Providers {
         public static readonly OEmbedJsonProvider OEmbedJson = new OEmbedJsonProvider();
 

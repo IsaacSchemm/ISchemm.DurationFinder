@@ -1,9 +1,8 @@
 ﻿using HtmlAgilityPack;
-using ISchemm.DurationFinder.NetworkProviders;
 using System;
 using System.Threading.Tasks;
 
-namespace ISchemm.DurationFinder.DocumentProviders {
+namespace ISchemm.DurationFinder {
     public class OEmbedDiscoveryProvider : IDocumentProvider {
         private readonly OEmbedJsonProvider _oEmbedJsonProvider;
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
-namespace ISchemm.DurationFinder.NetworkProviders {
+namespace ISchemm.DurationFinder {
     public class ChainedNetworkProvider : INetworkProvider {
         private readonly IReadOnlyList<INetworkProvider> _providers;
 

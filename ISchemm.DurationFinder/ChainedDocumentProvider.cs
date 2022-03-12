@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ISchemm.DurationFinder.DocumentProviders {
+namespace ISchemm.DurationFinder {
     public class ChainedDocumentProvider : IDocumentProvider {
         private readonly IReadOnlyList<IDocumentProvider> _providers;
 

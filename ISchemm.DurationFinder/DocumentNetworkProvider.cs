@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ISchemm.DurationFinder.NetworkProviders {
+namespace ISchemm.DurationFinder {
     public class DocumentNetworkProvider : INetworkProvider {
         private readonly IDocumentProvider _documentProvider;
 
