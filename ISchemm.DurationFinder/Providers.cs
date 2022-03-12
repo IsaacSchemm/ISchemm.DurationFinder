@@ -4,6 +4,7 @@
             new SchemaOrgDurationProvider(),
             new OpenGraphDurationProvider(),
             new OEmbedDiscoveryDurationProvider(),
-            new OEmbedJsonDurationProvider());
+            new OEmbedJsonDurationProvider(),
+            new HLSChunklistDurationProvider());
     }
 }
