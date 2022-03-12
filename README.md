@@ -20,7 +20,7 @@ returned instead.
 ## Providers
 
 * Implementations of **IDocumentProvider**
-    * **SchemaOrgProvider** (pages with [schema.org video markup](https://developers.google.com/search/blog/2012/02/using-schemaorg-markup-for-videos), such as YouTube)
+    * **SchemaOrgProvider** (pages with a schema.org style `<meta itemprop="duration">` tag, such as YouTube and SoundCloud)
     * **ChainedDocumentProvider** (combines multiple IDocumentProviders, attempting them in sequence)
 * Implementations of **INetworkProvider**
     * **OEmbedJsonProvider** (oEmbed JSON data with a non-standard `duration` field)

@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISchemm.DurationFinder.Tests", "ISchemm.DurationFinder.Tests\ISchemm.DurationFinder.Tests.csproj", "{58627BBF-C584-4AAE-91E3-6F3A1C1BD1D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{A69C5BCF-5FC7-4A70-B4F0-60976460F182}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A69C5BCF-5FC7-4A70-B4F0-60976460F182}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A69C5BCF-5FC7-4A70-B4F0-60976460F182}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58627BBF-C584-4AAE-91E3-6F3A1C1BD1D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58627BBF-C584-4AAE-91E3-6F3A1C1BD1D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58627BBF-C584-4AAE-91E3-6F3A1C1BD1D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58627BBF-C584-4AAE-91E3-6F3A1C1BD1D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
