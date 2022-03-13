@@ -51,8 +51,13 @@ namespace ISchemm.DurationFinder.Tests {
         }
 
         [TestMethod]
-        public async Task TestYouTubeRedirect() {
-            await TestUrl(424, "https://tinyurl.com/mshmkvyf");
+        public async Task TestRedirect_1() {
+            await TestUrl(424, "https://tinyurl.com/mshmkvyf"); 
+        }
+
+        [TestMethod]
+        public async Task TestRedirect_2() {
+            await TestUrl(210, "https://tinyurl.com/3e7wahxj");
         }
 
         [TestMethod]
@@ -63,6 +68,11 @@ namespace ISchemm.DurationFinder.Tests {
         [TestMethod]
         public async Task TestMP4_2() {
             await TestUrl(653.804263, "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
+        }
+
+        [TestMethod]
+        public async Task TestMP4_3() {
+            await TestUrl(29.568, "https://archive.org/download/SampleVideo1280x7205mb/SampleVideo_1280x720_5mb.mp4");
         }
 
         [TestMethod]
@@ -88,11 +98,6 @@ namespace ISchemm.DurationFinder.Tests {
         [TestMethod]
         public async Task TestVimeo_2() {
             await TestUrl(536, "https://vimeo.com/181964440");
-        }
-
-        [TestMethod]
-        public async Task TestVimeo_3() {
-            await TestUrl(536, "https://vimeo.com/api/oembed.json?url=" + Uri.EscapeDataString("https://vimeo.com/181964440"));
         }
 
         [TestMethod]
