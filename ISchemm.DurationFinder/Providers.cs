@@ -6,6 +6,7 @@
             new OEmbedDiscoveryDurationProvider(),
             new OEmbedJsonDurationProvider(),
             new HlsPlaylistDurationProvider(),
-            new HlsChunklistDurationProvider());
+            new HlsChunklistDurationProvider(),
+            new MP4DurationProvider());
     }
 }

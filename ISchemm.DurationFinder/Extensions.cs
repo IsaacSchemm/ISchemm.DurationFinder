@@ -10,6 +10,25 @@ namespace ISchemm.DurationFinder {
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        internal static async Task<byte[]?> GetRangeAsync(this Uri uri, long from, long to) {
+            using var req = new HttpRequestMessage(HttpMethod.Get, uri);
+            req.Headers.UserAgent.ParseAdd(UserAgentString);
+            req.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(from, to);
+
+            using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+
+            if (!resp.Content.Headers.ContentRange.HasRange) return null;
+            if (resp.Content.Headers.ContentRange.From != from) return null;
+            if (resp.Content.Headers.ContentRange.To < to) return null;
+            if (resp.Content.Headers.ContentRange.Unit != "bytes") return null;
+
+            var stream = await resp.Content.ReadAsStreamAsync();
+            var arr = new byte[to - from];
+            return await stream.ReadAsync(arr, 0, arr.Length) == arr.Length
+                ? arr
+                : null;
+        }
+
         internal static bool IsOfType(this HttpContent content, params string[] types) {
             foreach (string t in types)
                 if (string.Equals(content.Headers.ContentType.MediaType, t, StringComparison.OrdinalIgnoreCase))
@@ -26,6 +45,7 @@ namespace ISchemm.DurationFinder {
 
                 using var req = new HttpRequestMessage(HttpMethod.Get, uri);
                 req.Headers.UserAgent.ParseAdd(UserAgentString);
+
                 using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
 
                 if (await provider.GetDurationAsync(uri, resp.Content) is TimeSpan ts)
