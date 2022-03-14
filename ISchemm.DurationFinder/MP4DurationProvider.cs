@@ -1,31 +1,64 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public class MP4DurationProvider : IDurationProvider {
+        public interface IDataSource {
+            Task<byte[]?> GetRangeAsync(long from, long to);
+        }
+
+        public class StreamDataSource : IDataSource, IDisposable {
+            private readonly Stream stream;
+
+            public StreamDataSource(Stream stream) {
+                this.stream = stream;
+            }
+
+            public void Dispose() => stream.Dispose();
+
+            public async Task<byte[]?> GetRangeAsync(long from, long to) {
+                stream.Seek(from, SeekOrigin.Begin);
+                byte[] arr = new byte[to - from];
+                return await stream.ReadAsync(arr, 0, arr.Length) == arr.Length
+                    ? arr
+                    : null;
+            }
+        }
+
+        public class RemoteDataSource : IDataSource {
+            private readonly Uri Uri;
+
+            public RemoteDataSource(Uri uri) {
+                Uri = uri;
+            }
+
+            public async Task<byte[]?> GetRangeAsync(long from, long to) => await Requests.GetRangeAsync(Uri, from, to);
+        }
+
         private class AtomHeader {
-            public readonly Uri Uri;
+            public readonly IDataSource DataSource;
             public readonly uint Start;
             public readonly uint Length;
             public readonly uint Type;
 
             public uint End => Start + Length;
 
-            private AtomHeader(Uri uri, uint start, uint length, uint type) {
-                Uri = uri;
+            private AtomHeader(IDataSource dataSource, uint start, uint length, uint type) {
+                DataSource = dataSource;
                 Start = start;
                 Length = length;
                 Type = type;
             }
 
-            public static async Task<AtomHeader?> GetAsync(Uri uri, uint offset = 0) {
-                return await uri.GetRangeAsync(offset, offset + 8) is byte[] arr
+            public static async Task<AtomHeader?> GetAsync(IDataSource dataSource, uint offset = 0) {
+                return await dataSource.GetRangeAsync(offset, offset + 8) is byte[] arr
                     ? new AtomHeader(
-                        uri: uri,
+                        dataSource: dataSource,
                         start: offset,
                         length: BinaryPrimitives.ReadUInt32BigEndian(arr.AsSpan(0, 4)),
                         type: BinaryPrimitives.ReadUInt32BigEndian(arr.AsSpan(4, 4)))
@@ -33,23 +66,13 @@ namespace ISchemm.DurationFinder {
             }
 
             public async Task<AtomHeader?> GetFirstChildAsync() =>
-                await GetAsync(Uri, Start + 8);
+                await GetAsync(DataSource, Start + 8);
 
             public async Task<AtomHeader?> GetNextAsync() =>
-                await GetAsync(Uri, End);
+                await GetAsync(DataSource, End);
 
             public async Task<byte[]?> ReadAsync() =>
-                await Uri.GetRangeAsync(Start, End);
-        }
-
-        private async IAsyncEnumerable<AtomHeader> EnumerateAtomsAsync(Uri originalLocation, AtomHeader? parent = null) {
-            var atom = parent is AtomHeader a
-                ? await a.GetFirstChildAsync()
-                : await AtomHeader.GetAsync(originalLocation);
-            while (atom != null) {
-                yield return atom;
-                atom = await atom.GetNextAsync();
-            }
+                await DataSource.GetRangeAsync(Start, End);
         }
 
         private class MovieHeaderAtom {
@@ -64,7 +87,7 @@ namespace ISchemm.DurationFinder {
             }
 
             public static async Task<MovieHeaderAtom?> ReadAsync(AtomHeader header) {
-                return await header.Uri.GetRangeAsync(header.Start, header.End) is byte[] arr && arr.Length == 108
+                return await header.DataSource.GetRangeAsync(header.Start, header.End) is byte[] arr && arr.Length == 108
                     ? new MovieHeaderAtom(
                         timeScale: BinaryPrimitives.ReadUInt32BigEndian(arr.AsSpan(20, 4)),
                         duration: BinaryPrimitives.ReadUInt32BigEndian(arr.AsSpan(24, 4)))
@@ -75,16 +98,33 @@ namespace ISchemm.DurationFinder {
         private static readonly uint _moov = BinaryPrimitives.ReadUInt32BigEndian(Encoding.ASCII.GetBytes("moov").AsSpan(0, 4));
         private static readonly uint _mvhd = BinaryPrimitives.ReadUInt32BigEndian(Encoding.ASCII.GetBytes("mvhd").AsSpan(0, 4));
 
+        private async IAsyncEnumerable<AtomHeader> EnumerateAtomsAsync(IDataSource dataSource, AtomHeader? parent = null) {
+            var atom = parent is AtomHeader a
+                ? await a.GetFirstChildAsync()
+                : await AtomHeader.GetAsync(dataSource);
+            while (atom != null) {
+                yield return atom;
+                atom = await atom.GetNextAsync();
+            }
+        }
+
+        public async Task<TimeSpan?> GetDurationAsync(Stream stream) {
+            return await GetDurationAsync(new StreamDataSource(stream));
+        }
+
         public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
             if (!httpContent.IsOfType("video/mp4", "audio/mp4"))
                 return null;
 
-            await foreach (var atom1 in EnumerateAtomsAsync(originalLocation))
+            return await GetDurationAsync(new RemoteDataSource(originalLocation));
+        }
+
+        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
+            await foreach (var atom1 in EnumerateAtomsAsync(dataSource))
                 if (atom1.Type == _moov)
-                    await foreach (var atom2 in EnumerateAtomsAsync(originalLocation, atom1))
+                    await foreach (var atom2 in EnumerateAtomsAsync(dataSource, atom1))
                         if (atom2.Type == _mvhd && await MovieHeaderAtom.ReadAsync(atom2) is MovieHeaderAtom mvhd)
                             return mvhd.Duration;
-
             return null;
         }
     }

@@ -6,12 +6,12 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
-    public static class Extensions {
-        private static readonly string UserAgentString = "ISchemm.DurationFinder/3.0 (https://github.com/IsaacSchemm/ISchemm.DurationFinder)";
+    public static class Requests {
+        internal static readonly string UserAgentString = "ISchemm.DurationFinder/3.0 (https://github.com/IsaacSchemm/ISchemm.DurationFinder)";
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        internal static async Task<byte[]?> GetRangeAsync(this Uri uri, long from, long to) {
+        internal static async Task<byte[]?> GetRangeAsync(Uri uri, long from, long to) {
             using var req = new HttpRequestMessage(HttpMethod.Get, uri);
             req.Headers.UserAgent.ParseAdd(UserAgentString);
             req.Headers.Range = new RangeHeaderValue(from, to);
