@@ -3,10 +3,8 @@
         public static readonly IDurationProvider All = new ChainedDurationProvider(
             new SchemaOrgDurationProvider(),
             new OpenGraphDurationProvider(),
-            new OEmbedDiscoveryDurationProvider(),
-            new OEmbedJsonDurationProvider(),
-            new HlsPlaylistDurationProvider(),
-            new HlsChunklistDurationProvider(),
+            new OEmbedDurationProvider(),
+            new HlsDurationProvider(),
             new MP4DurationProvider());
     }
 }
