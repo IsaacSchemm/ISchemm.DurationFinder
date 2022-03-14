@@ -1,60 +1,76 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Text;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public class MP4DurationProvider : IDurationProvider {
-        private class AtomHeader {
-            public int Start { get; set; }
-            public int Length { get; set; }
-            public string Name { get; set; } = "";
+        private static unsafe string ToFourCharacterString(int val) {
+            int* ptr1 = &val;
+            sbyte* ptr2 = (sbyte*)ptr1;
+            return new string(ptr2, 0, sizeof(int));
         }
 
-        private class MemoryDataSource {
-            private readonly Uri _uri;
-            //private readonly byte[] _initialData;
-            private readonly long _length;
+        [StructLayout(LayoutKind.Sequential, Size = 4)]
+        private unsafe struct BigEndianUInt32 {
+            private readonly int val;
+            public static implicit operator uint (BigEndianUInt32 x) => (uint)IPAddress.NetworkToHostOrder(x.val);
+            public override string ToString() => $"{(uint)this}";
+        }
 
-            public MemoryDataSource(Uri uri, /*byte[] initialData,*/ long length) {
-                _uri = uri;
-                //_initialData = initialData;
-                _length = length;
+        [StructLayout(LayoutKind.Sequential, Size = 4)]
+        private unsafe struct AtomType {
+            private readonly int val;
+            public static unsafe implicit operator string(AtomType x) => ToFourCharacterString(x.val);
+            public override string ToString() => (string)this;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct AtomHeader {
+            public readonly BigEndianUInt32 length;
+            public readonly AtomType type;
+
+            public static unsafe int Size => sizeof(AtomHeader);
+
+            public static unsafe AtomHeader FromByteArray(byte[] arr) {
+                fixed (byte* ptr = arr) {
+                    var ptr2 = (AtomHeader*)ptr;
+                    return *ptr2;
+                }
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MovieHeaderAtom {
+            private readonly AtomHeader header;
+            private readonly byte version;
+            private readonly byte flags1;
+            private readonly byte flags2;
+            private readonly byte flags3;
+            private readonly BigEndianUInt32 creationTime;
+            private readonly BigEndianUInt32 modificationTime;
+            private readonly BigEndianUInt32 timeScale;
+            private readonly BigEndianUInt32 duration;
+
+            public DateTime CreationTime => new DateTime(1904, 1, 1, 0, 0, 0).AddSeconds(creationTime);
+            public DateTime ModificationTime => new DateTime(1904, 1, 1, 0, 0, 0).AddSeconds(modificationTime);
+
+            public TimeSpan Duration {
+                get {
+                    double t = timeScale;
+                    double d = duration;
+                    return TimeSpan.FromSeconds(d / t);
+                }
             }
 
-            public async Task<byte[]?> GetRangeAsync(long start, long length) {
-                //if (start + length < _initialData.Length)
-                //    return _initialData.AsMemory().Slice(
-                //        checked((int)start),
-                //        checked((int)length)).ToArray();
+            public static unsafe int Size => sizeof(MovieHeaderAtom);
 
-                if (await _uri.GetRangeAsync(start, start + length) is byte[] arr)
-                    return arr;
-
-                return null;
-            }
-
-            public async IAsyncEnumerable<AtomHeader> EnumerateAtomsAsync(int offset = 0) {
-                int i = offset;
-                while (true) {
-                    if (i + 8 > _length)
-                        yield break;
-                    var arr = await GetRangeAsync(i, 8);
-                    if (arr == null)
-                        yield break;
-                    int length = arr[0] << 24 | arr[1] << 16 | arr[2] << 8 | arr[3];
-                    string name = new string(arr.Skip(4).Select(x => (char)x).ToArray());
-                    if (i + length > _length)
-                        yield break;
-                    yield return new AtomHeader {
-                        Start = i,
-                        Length = length,
-                        Name = name
-                    };
-                    i += length;
+            public static unsafe MovieHeaderAtom FromByteArray(byte[] arr) {
+                fixed (byte* ptr = arr) {
+                    var ptr2 = (MovieHeaderAtom*)ptr;
+                    return *ptr2;
                 }
             }
         }
@@ -63,33 +79,24 @@ namespace ISchemm.DurationFinder {
             if (!httpContent.IsOfType("video/mp4", "audio/mp4"))
                 return null;
 
-            //byte[] buffer = new byte[2048];
-            //var stream = await httpContent.ReadAsStreamAsync();
-            //int read = await stream.ReadAsync(buffer, 0, buffer.Length);
+            async Task<byte[]?> GetRangeAsync(long start, long length) =>
+                await originalLocation.GetRangeAsync(start, start + length);
 
-            var dataSource = new MemoryDataSource(originalLocation, /*buffer,*/ httpContent.Headers.ContentLength ?? /*read ??*/ 0);
-            await foreach (var h in dataSource.EnumerateAtomsAsync()) {
-                System.Diagnostics.Debug.WriteLine(h.Name);
-                if (h.Name == "moov") {
-                    await foreach (var hh in dataSource.EnumerateAtomsAsync(offset: h.Start + 8)) {
-                        if (hh.Name == "mvhd") {
-                            if (await dataSource.GetRangeAsync(hh.Start + 20, 8) is byte[] data) {
-                                uint timeScale = 0;
-                                for (int i = 0; i < 4; i++) {
-                                    timeScale <<= 8;
-                                    timeScale |= data[i];
-                                }
-                                uint duration = 0;
-                                for (int i = 4; i < 8; i++) {
-                                    duration <<= 8;
-                                    duration |= data[i];
-                                }
-                                return TimeSpan.FromSeconds((double)duration / timeScale);
-                            }
-                        }
-                    }
+            async IAsyncEnumerable<(uint offset, AtomHeader atom)> EnumerateAtomsAsync(uint offset = 0) {
+                uint i = offset;
+                while (await GetRangeAsync(i, 8) is byte[] arr) {
+                    var hh = AtomHeader.FromByteArray(arr);
+                    yield return (i, hh);
+                    i += hh.length;
                 }
             }
+
+            await foreach (var (offset1, h) in EnumerateAtomsAsync())
+                if (h.type == "moov")
+                    await foreach (var (offset2, hh) in EnumerateAtomsAsync(offset: offset1 + 8))
+                        if (hh.type == "mvhd")
+                            if (await GetRangeAsync(offset2, MovieHeaderAtom.Size) is byte[] data)
+                                return MovieHeaderAtom.FromByteArray(data).Duration;
 
             return null;
         }
