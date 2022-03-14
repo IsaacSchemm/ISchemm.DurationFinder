@@ -12,6 +12,7 @@ or a supported video-sharing site.
 * OEmbedJsonDurationProvider (for oEmbed JSON endpoints that include a non-standard `duration` field)
 * HlsPlaylistDurationProvider (for HLS VOD playlists)
 * HlsChunklistDurationProvider (for HLS VOD chunklists)
+* MP4DurationProvider (for MPEG-4 Part 14 containers, such as .mp4 and .m4a - requires HTTP range request support on the remote server)
 
 ## Support
 
@@ -20,6 +21,8 @@ or a supported video-sharing site.
 * Vimeo (OEmbedDiscoveryDurationProvider)
 * Dailymotion (OpenGraphDurationProvider)
 * HLS (.m3u8) (HlsPlaylistDurationProvider)
+* .mp4 (MP4DurationProvider)
+* .m4a (MP4DurationProvider)
 
 ## Usage
 

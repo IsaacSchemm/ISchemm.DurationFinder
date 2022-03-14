@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
@@ -13,14 +14,15 @@ namespace ISchemm.DurationFinder {
         internal static async Task<byte[]?> GetRangeAsync(this Uri uri, long from, long to) {
             using var req = new HttpRequestMessage(HttpMethod.Get, uri);
             req.Headers.UserAgent.ParseAdd(UserAgentString);
-            req.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(from, to);
+            req.Headers.Range = new RangeHeaderValue(from, to);
 
             using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
 
-            if (!resp.Content.Headers.ContentRange.HasRange) return null;
-            if (resp.Content.Headers.ContentRange.From != from) return null;
-            if (resp.Content.Headers.ContentRange.To < to) return null;
-            if (resp.Content.Headers.ContentRange.Unit != "bytes") return null;
+            if (!(resp.Content.Headers.ContentRange is ContentRangeHeaderValue cr)) return null;
+            if (!cr.HasRange) return null;
+            if (cr.From != from) return null;
+            if (cr.To < to) return null;
+            if (cr.Unit != "bytes") return null;
 
             var stream = await resp.Content.ReadAsStreamAsync();
             var arr = new byte[to - from];
