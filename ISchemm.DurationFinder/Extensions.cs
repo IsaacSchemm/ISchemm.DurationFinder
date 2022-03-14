@@ -50,7 +50,7 @@ namespace ISchemm.DurationFinder {
 
                 using var resp = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
 
-                if (await provider.GetDurationAsync(uri, resp.Content) is TimeSpan ts)
+                if (await provider.GetDurationAsync(resp.RequestMessage.RequestUri, resp.Content) is TimeSpan ts)
                     return ts;
 
                 switch (resp.Content.Headers.ContentType.MediaType) {
