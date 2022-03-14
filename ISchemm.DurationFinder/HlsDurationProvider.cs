@@ -24,7 +24,7 @@ namespace ISchemm.DurationFinder {
             return null;
         }
 
-        private static readonly IDurationProvider ChunklistProvider = new HlsChunklistDurationProvider();
+        public static readonly IDurationProvider ChunklistProvider = new HlsChunklistDurationProvider();
 
         private class HlsChunklistDurationProvider : IDurationProvider {
             public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
