@@ -76,6 +76,16 @@ namespace ISchemm.DurationFinder.Tests {
         }
 
         [TestMethod]
+        public async Task TestVorbis_1() {
+            await TestUrl(2237440.0 / 48000.0, "https://filesamples.com/samples/video/ogv/sample_960x400_ocean_with_audio.ogv");
+        }
+
+        [TestMethod]
+        public async Task TestVorbis_2() {
+            await TestUrl(10780810.0 / 44100.0, "https://filesamples.com/samples/audio/ogg/sample4.ogg");
+        }
+
+        [TestMethod]
         public async Task TestHLS_1() {
             await TestUrl(210, "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8");
         }
