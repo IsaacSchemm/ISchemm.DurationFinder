@@ -20,6 +20,7 @@ namespace ISchemm.DurationFinder.Tests {
         }
 
         private static async Task TestUrl(double? expected, string url) {
+            DateTime start = DateTime.Now;
             TimeSpan? duration = await Providers.All.GetDurationAsync(new Uri(url));
             if (expected is double d) {
                 if (duration is TimeSpan ts) {
@@ -32,6 +33,10 @@ namespace ISchemm.DurationFinder.Tests {
             } else {
                 Assert.IsNull(duration);
             }
+
+            TimeSpan maxts = TimeSpan.FromSeconds(15);
+            if (DateTime.Now - start > maxts)
+                Assert.Inconclusive($"Took more than {maxts}");
         }
 
         [TestMethod]
@@ -82,12 +87,12 @@ namespace ISchemm.DurationFinder.Tests {
 
         [TestMethod]
         public async Task TestVorbis_1() {
-            await TestUrl(2237440.0 / 48000.0, "https://filesamples.com/samples/video/ogv/sample_960x400_ocean_with_audio.ogv");
+            await TestUrl(2237440.0 / 48000.0, "https://www.lakora.us/durationfinder/sample_960x400_ocean_with_audio.ogv");
         }
 
         [TestMethod]
         public async Task TestVorbis_2() {
-            await TestUrl(10780810.0 / 44100.0, "https://filesamples.com/samples/audio/ogg/sample4.ogg");
+            await TestUrl(10780810.0 / 44100.0, "https://www.lakora.us/durationfinder/sample4.ogg");
         }
 
         [TestMethod]
