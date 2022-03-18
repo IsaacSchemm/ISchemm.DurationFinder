@@ -51,6 +51,11 @@ namespace ISchemm.DurationFinder.Tests {
         }
 
         [TestMethod]
+        public async Task TestYouTube_4() {
+            await TestUrl(null, "https://www.youtube.com/watch?v=rrjwqF4yJ9w");
+        }
+
+        [TestMethod]
         public async Task TestRedirect_1() {
             await TestUrl(424, "https://tinyurl.com/mshmkvyf"); 
         }
