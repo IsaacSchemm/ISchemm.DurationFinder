@@ -26,7 +26,14 @@ namespace ISchemm.DurationFinder {
 
             var stream = await resp.Content.ReadAsStreamAsync();
             var arr = new byte[to - from];
-            return await stream.ReadAsync(arr, 0, arr.Length) == arr.Length
+            int read = 0;
+            while (true) {
+                int x = await stream.ReadAsync(arr, read, arr.Length - read);
+                if (x <= 0) break;
+                read += x;
+                if (read == arr.Length) break;
+            }
+            return read == arr.Length
                 ? arr
                 : null;
         }

@@ -1,20 +1,30 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public interface IDataSource {
         Task<byte[]?> GetRangeAsync(long from, long to);
+        long? ContentLength { get; }
     }
 
-    public class StreamDataSource : IDataSource, IDisposable {
+    public class StreamDataSource : IDataSource {
         private readonly Stream stream;
+
+        public long? ContentLength {
+            get {
+                try {
+                    return stream.Length;
+                } catch (NotSupportedException) {
+                    return null;
+                }
+            }
+        }
 
         public StreamDataSource(Stream stream) {
             this.stream = stream;
         }
-
-        public void Dispose() => stream.Dispose();
 
         public async Task<byte[]?> GetRangeAsync(long from, long to) {
             stream.Seek(from, SeekOrigin.Begin);
@@ -27,11 +37,16 @@ namespace ISchemm.DurationFinder {
 
     public class RemoteDataSource : IDataSource {
         private readonly Uri Uri;
+        private readonly HttpContent? HttpContent;
 
-        public RemoteDataSource(Uri uri) {
+        public long? ContentLength => HttpContent?.Headers?.ContentLength;
+
+        public RemoteDataSource(Uri uri, HttpContent? httpContent) {
             Uri = uri;
+            HttpContent = httpContent;
         }
 
-        public async Task<byte[]?> GetRangeAsync(long from, long to) => await Requests.GetRangeAsync(Uri, from, to);
+        public async Task<byte[]?> GetRangeAsync(long from, long to) =>
+            await Requests.GetRangeAsync(Uri, from, to);
     }
 }

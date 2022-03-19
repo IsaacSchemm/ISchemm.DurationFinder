@@ -5,6 +5,7 @@
             new OpenGraphDurationProvider(),
             new OEmbedDurationProvider(),
             new HlsDurationProvider(),
-            new MP4DurationProvider());
+            new MP4DurationProvider(),
+            new VorbisDurationProvider());
     }
 }
