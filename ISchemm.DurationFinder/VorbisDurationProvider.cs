@@ -2,7 +2,6 @@
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
@@ -91,17 +90,6 @@ namespace ISchemm.DurationFinder {
             }
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(Stream stream) {
-            return await GetDurationAsync(new StreamDataSource(stream));
-        }
-
-        public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
-            if (!httpContent.IsOfType("video/ogg", "audio/ogg"))
-                return null;
-
-            return await GetDurationAsync(new RemoteDataSource(originalLocation, httpContent));
-        }
-
         private static async Task<ulong?> GetLastGranulePositionAsync(IDataSource dataSource) {
             if (dataSource.ContentLength is long contentLength) {
                 byte[]? data = await dataSource.GetRangeAsync(
@@ -133,6 +121,9 @@ namespace ISchemm.DurationFinder {
         }
 
         public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
+            if (!dataSource.MatchesType("video/ogg", "audio/ogg"))
+                return null;
+
             ulong maxGranulePosition = 0;
 
             uint? sampleRate = null;

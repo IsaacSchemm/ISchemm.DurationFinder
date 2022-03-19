@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -10,14 +9,12 @@ namespace ISchemm.DurationFinder {
             public double? duration { get; set; }
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
-            if (!httpContent.IsOfType("text/json", "application/json"))
+        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
+            if (!dataSource.MatchesType("text/json", "application/json"))
                 return null;
 
-            await httpContent.LoadIntoBufferAsync();
-
-            var json = await httpContent.ReadAsStringAsync();
-            var obj = JsonSerializer.Deserialize<OEmbedResponse>(json);
+            byte[] data = await dataSource.ReadAsync();
+            var obj = JsonSerializer.Deserialize<OEmbedResponse>(data);
             if (obj?.duration is double x)
                 return TimeSpan.FromSeconds(x);
 

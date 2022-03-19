@@ -76,18 +76,10 @@ namespace ISchemm.DurationFinder {
             }
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(Stream stream) {
-            return await GetDurationAsync(new StreamDataSource(stream));
-        }
-
-        public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
-            if (!httpContent.IsOfType("video/mp4", "audio/mp4"))
+        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
+            if (!dataSource.MatchesType("video/mp4", "audio/mp4"))
                 return null;
 
-            return await GetDurationAsync(new RemoteDataSource(originalLocation, httpContent));
-        }
-
-        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
             await foreach (var atom1 in EnumerateAtomsAsync(dataSource))
                 if (atom1.Type == _moov)
                     await foreach (var atom2 in EnumerateAtomsAsync(dataSource, atom1))

@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -158,6 +159,52 @@ namespace ISchemm.DurationFinder.Tests {
         [TestMethod]
         public async Task TestCircular_B() {
             await TestUrl(null, "https://www.lakora.us/durationfinder/circularB.html");
+        }
+
+        private static async Task TestFile(double? expected, string path) {
+            path = Path.Combine("..", "..", "..", path);
+            DateTime start = DateTime.Now;
+            TimeSpan? duration = await Providers.All.GetDurationAsync(new StreamDataSource(new FileStream(path, FileMode.Open, FileAccess.Read)));
+            if (expected is double d) {
+                if (duration is TimeSpan ts) {
+                    Assert.AreEqual(d, ts.TotalSeconds, 0.1);
+                } else if (File.Exists(path)) {
+                    Assert.Inconclusive();
+                } else {
+                    Assert.IsNotNull(duration);
+                }
+            } else {
+                Assert.IsNull(duration);
+            }
+
+            TimeSpan maxts = TimeSpan.FromSeconds(15);
+            if (DateTime.Now - start > maxts)
+                Assert.Inconclusive($"Took more than {maxts}");
+        }
+
+        [TestMethod]
+        public async Task TestMP4_File() {
+            await TestFile(29.568, "SampleVideo_1280x720_5mb.mp4");
+        }
+
+        [TestMethod]
+        public async Task TestVorbis_File() {
+            await TestFile(2237440.0 / 48000.0, "sample_960x400_ocean_with_audio.ogv");
+        }
+
+        [TestMethod]
+        public async Task TestHLS_File() {
+            await TestFile(600, "remote_chunklist.m3u8");
+        }
+
+        [TestMethod]
+        public async Task TestSchemaOrg_File() {
+            await TestFile(3 * 60 + 56, "schemaorg.html");
+        }
+
+        [TestMethod]
+        public async Task TestOEmbed_File() {
+            await TestFile(57, "oembed.html");
         }
     }
 }

@@ -1,17 +1,16 @@
 ﻿using HtmlAgilityPack;
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml;
 
 namespace ISchemm.DurationFinder {
     public class SchemaOrgDurationProvider : IDurationProvider {
-        public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
-            if (!httpContent.IsOfType("text/html", "application/xhtml+xml"))
+        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
+            if (!dataSource.MatchesType("text/html", "application/xhtml+xml"))
                 return null;
 
             var document = new HtmlDocument();
-            string html = await httpContent.ReadAsStringAsync();
+            string html = await dataSource.ReadAsStringAsync();
             document.LoadHtml(html);
 
             foreach (var node in document.DocumentNode.Descendants("meta"))

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
@@ -16,9 +15,9 @@ namespace ISchemm.DurationFinder {
             _providers = providers.ToArray();
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
+        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
             foreach (var provider in _providers)
-                if (await provider.GetDurationAsync(originalLocation, httpContent) is TimeSpan ts)
+                if (await provider.GetDurationAsync(dataSource) is TimeSpan ts)
                     return ts;
             return null;
         }

@@ -8,9 +8,15 @@ or a supported video-sharing site.
 
 * SchemaOrgDurationProvider (for pages with a schema.org style `<meta itemprop="duration">` tag)
 * OpenGraphDurationProvider (for pages with an OpenGraph style `<meta property="video:duration">` tag)
-* OEmbedDurationProvider (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint which contains a non-standard `duration` field)
+* OEmbedDurationProvider (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint which contains a non-standard `duration` property)
 * HlsDurationProvider (for HLS VOD playlists)
 * MP4DurationProvider (for MPEG-4 Part 14 containers, such as .mp4 and .m4a - requires HTTP range request support on the remote server)
+* VorbisDurationProvider (for Ogg containers - requires HTTP range request support on the remote server, and the file must contains a Vorbis stream)
+
+Additional providers that are not included in `Providers.All` but are used internally:
+
+* ChunklistDurationProvider (for HLS VOD chunklists)
+* JsonDurationProvider (for JSON files with a numeric `duration` property)
 
 ## Support
 
@@ -18,9 +24,12 @@ or a supported video-sharing site.
 * SoundCloud (SchemaOrgDurationProvider)
 * Vimeo (OEmbedDurationProvider)
 * Dailymotion (OpenGraphDurationProvider)
-* HLS (.m3u8) (HlsDurationProvider)
+* HLS (HlsDurationProvider)
 * .mp4 (MP4DurationProvider)
 * .m4a (MP4DurationProvider)
+* .ogg (VorbisDurationProvider)
+* .oga (VorbisDurationProvider)
+* .ogv (VorbisDurationProvider)
 
 ## Usage
 
