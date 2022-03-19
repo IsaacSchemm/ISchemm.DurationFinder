@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public class VorbisDurationProvider : IDurationProvider {
-        private readonly bool _verifyContentType;
         private readonly bool _searchEntireFile;
 
-        public VorbisDurationProvider(bool verifyContentType = true, bool searchEntireFile = false) {
-            _verifyContentType = verifyContentType;
+        public VorbisDurationProvider(bool searchEntireFile = false) {
             _searchEntireFile = searchEntireFile;
         }
 
@@ -98,42 +96,13 @@ namespace ISchemm.DurationFinder {
         }
 
         public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
-            if (_verifyContentType)
-                if (!httpContent.IsOfType("video/ogg", "audio/ogg"))
-                    return null;
+            if (!httpContent.IsOfType("video/ogg", "audio/ogg"))
+                return null;
 
             return await GetDurationAsync(new RemoteDataSource(originalLocation, httpContent));
         }
 
-        private async Task<uint?> GetSampleRateAsync(IDataSource dataSource) {
-            await foreach (var pageHeader in EnumerateOggPageHeadersAsync(dataSource)) {
-                if (pageHeader.End - pageHeader.SegmentTableEnd == 0x1E) {
-                    byte[] segment = await pageHeader.ReadAsync();
-
-                    int i = 0;
-                    if (segment[i++] != 1) continue;
-                    if (segment[i++] != 'v') continue;
-                    if (segment[i++] != 'o') continue;
-                    if (segment[i++] != 'r') continue;
-                    if (segment[i++] != 'b') continue;
-                    if (segment[i++] != 'i') continue;
-                    if (segment[i++] != 's') continue;
-
-                    return BinaryPrimitives.ReadUInt32LittleEndian(segment.AsSpan(12, 4));
-                }
-            }
-
-            return null;
-        }
-
-        private async Task<ulong> GetMaxGranulePositionAsync(IDataSource dataSource) {
-            ulong max = 0;
-            await foreach (var pageHeader in EnumerateOggPageHeadersAsync(dataSource))
-                max = Math.Max(max, pageHeader.GranulePosition);
-            return max;
-        }
-
-        private async Task<ulong?> GetLastGranulePositionAsync(IDataSource dataSource) {
+        private static async Task<ulong?> GetLastGranulePositionAsync(IDataSource dataSource) {
             if (dataSource.ContentLength is long contentLength) {
                 byte[]? data = await dataSource.GetRangeAsync(
                     Math.Max(contentLength - 65307, 0),
@@ -156,16 +125,41 @@ namespace ISchemm.DurationFinder {
             return null;
         }
 
-        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
-            double? sampleRate = await GetSampleRateAsync(dataSource);
-            double? granulePosition = _searchEntireFile
-                ? await GetMaxGranulePositionAsync(dataSource)
-                : await GetLastGranulePositionAsync(dataSource);
-
+        private static TimeSpan? GetDuration(double? granulePosition, double? sampleRate) {
             if (sampleRate is double s && granulePosition is double g)
                 return TimeSpan.FromSeconds(g / s);
             else
                 return null;
+        }
+
+        public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
+            ulong maxGranulePosition = 0;
+
+            uint? sampleRate = null;
+
+            await foreach (var pageHeader in EnumerateOggPageHeadersAsync(dataSource)) {
+                if (pageHeader.End - pageHeader.SegmentTableEnd == 0x1E) {
+                    byte[] segment = await pageHeader.ReadAsync();
+
+                    int i = 0;
+                    if (segment[i++] != 1) continue;
+                    if (segment[i++] != 'v') continue;
+                    if (segment[i++] != 'o') continue;
+                    if (segment[i++] != 'r') continue;
+                    if (segment[i++] != 'b') continue;
+                    if (segment[i++] != 'i') continue;
+                    if (segment[i++] != 's') continue;
+
+                    sampleRate = BinaryPrimitives.ReadUInt32LittleEndian(segment.AsSpan(12, 4));
+                }
+
+                if (sampleRate != null && _searchEntireFile == false)
+                    return GetDuration(await GetLastGranulePositionAsync(dataSource), sampleRate);
+
+                maxGranulePosition = Math.Max(maxGranulePosition, pageHeader.GranulePosition);
+            }
+
+            return GetDuration(maxGranulePosition, sampleRate);
         }
     }
 }

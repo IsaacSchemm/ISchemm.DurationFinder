@@ -8,12 +8,6 @@ using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public class MP4DurationProvider : IDurationProvider {
-        private readonly bool _verifyContentType;
-
-        public MP4DurationProvider(bool verifyContentType = true) {
-            _verifyContentType = verifyContentType;
-        }
-
         private class AtomHeader {
             public readonly IDataSource DataSource;
             public readonly uint Start;
@@ -87,9 +81,8 @@ namespace ISchemm.DurationFinder {
         }
 
         public async Task<TimeSpan?> GetDurationAsync(Uri originalLocation, HttpContent httpContent) {
-            if (_verifyContentType)
-                if (!httpContent.IsOfType("video/mp4", "audio/mp4"))
-                    return null;
+            if (!httpContent.IsOfType("video/mp4", "audio/mp4"))
+                return null;
 
             return await GetDurationAsync(new RemoteDataSource(originalLocation, httpContent));
         }
