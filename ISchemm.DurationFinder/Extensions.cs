@@ -16,12 +16,6 @@ namespace ISchemm.DurationFinder {
             return await sr.ReadToEndAsync();
         }
 
-        public static async Task<TimeSpan?> GetDurationAsync(this IDurationProvider provider, HttpResponseMessage responseMessage) =>
-            await provider.GetDurationAsync(new RemoteDataSource(responseMessage));
-
-        public static async Task<TimeSpan?> GetDurationAsync(this IDurationProvider provider, Stream stream) =>
-            await provider.GetDurationAsync(new StreamDataSource(stream));
-
         public static async Task<TimeSpan?> GetDurationAsync(this IDurationProvider provider, Uri initial_uri) {
             var canonical = new List<Uri> { initial_uri };
 
@@ -31,26 +25,22 @@ namespace ISchemm.DurationFinder {
                 using var req = new HttpRequestMessage(HttpMethod.Get, uri);
                 req.Headers.UserAgent.ParseAdd(UserAgentString);
 
-                using var resp = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+                using var dataSource = new RemoteDataSource(await HttpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead));
 
-                if (await provider.GetDurationAsync(resp) is TimeSpan ts)
+                if (await provider.GetDurationAsync(dataSource) is TimeSpan ts)
                     return ts;
 
-                switch (resp.Content.Headers.ContentType.MediaType) {
-                    case "text/html":
-                    case "application/xhtml+xml":
-                        var document = new HtmlDocument();
-                        string html = await resp.Content.ReadAsStringAsync();
-                        document.LoadHtml(html);
+                if (dataSource.MatchesType("text/html", "application/xhtml+xml")) {
+                    var document = new HtmlDocument();
+                    string html = await dataSource.ReadAsStringAsync();
+                    document.LoadHtml(html);
 
-                        foreach (var node in document.DocumentNode.Descendants("link"))
-                            if (node.GetAttributeValue("rel", null) == "canonical")
-                                if (node.GetAttributeValue("href", null) is string str)
-                                    if (Uri.TryCreate(resp.Headers.Location, HtmlEntity.DeEntitize(str), out Uri new_uri))
-                                        if (!canonical.Contains(new_uri))
-                                            canonical.Add(new_uri);
-
-                        break;
+                    foreach (var node in document.DocumentNode.Descendants("link"))
+                        if (node.GetAttributeValue("rel", null) == "canonical")
+                            if (node.GetAttributeValue("href", null) is string str)
+                                if (dataSource.TryCreateRelativeUri(HtmlEntity.DeEntitize(str), out Uri new_uri))
+                                    if (!canonical.Contains(new_uri))
+                                        canonical.Add(new_uri);
                 }
             }
 

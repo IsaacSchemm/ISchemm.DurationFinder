@@ -102,8 +102,7 @@ namespace ISchemm.DurationFinder {
                         if (data[i+2] != 'g') continue;
                         if (data[i+3] != 'S') continue;
 
-                        using var ms = new MemoryStream(data);
-                        var page = await OggPageHeader.GetAsync(new StreamDataSource(ms), (uint)i);
+                        var page = await OggPageHeader.GetAsync(new StreamDataSource(data), (uint)i);
                         if (page != null) {
                             return page.GranulePosition;
                         }
