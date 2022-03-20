@@ -6,8 +6,8 @@ or a supported video-sharing site.
 
 ## Providers
 
-* SchemaOrgDurationProvider (for pages with a schema.org style `<meta itemprop="duration">` tag)
-* OpenGraphDurationProvider (for pages with an OpenGraph style `<meta property="video:duration">` tag)
+* SchemaOrgDurationProvider (for pages with a `<meta itemprop="duration">` tag)
+* OpenGraphDurationProvider (for pages with a `<meta property="og:video:duration">` or `<meta property="video:duration">` tag)
 * OEmbedDurationProvider (for pages that provide oEmbed discovery through a `<link>` element to a JSON endpoint which contains a non-standard `duration` property)
 * HlsDurationProvider (for HLS VOD playlists)
 * MP4DurationProvider (for MPEG-4 Part 14 containers, such as .mp4 and .m4a - requires HTTP range request support on the remote server)
@@ -23,6 +23,7 @@ Additional providers that are not included in `Providers.All` but are used inter
 * YouTube (SchemaOrgDurationProvider)
 * SoundCloud (SchemaOrgDurationProvider)
 * Vimeo (OEmbedDurationProvider)
+* Twitch (OpenGraphDurationProvider)
 * Dailymotion (OpenGraphDurationProvider)
 * HLS (HlsDurationProvider)
 * .mp4 (MP4DurationProvider)
