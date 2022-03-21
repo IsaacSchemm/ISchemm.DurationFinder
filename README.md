@@ -23,7 +23,6 @@ Additional providers that are not included in `Providers.All` but are used inter
 * YouTube (SchemaOrgDurationProvider)
 * SoundCloud (SchemaOrgDurationProvider)
 * Vimeo (OEmbedDurationProvider)
-* Twitch (OpenGraphDurationProvider)
 * Dailymotion (OpenGraphDurationProvider)
 * HLS (HlsDurationProvider)
 * .mp4 (MP4DurationProvider)
@@ -31,6 +30,8 @@ Additional providers that are not included in `Providers.All` but are used inter
 * .ogg (VorbisDurationProvider)
 * .oga (VorbisDurationProvider)
 * .ogv (VorbisDurationProvider)
+
+Twitch might also work with OpenGraphDurationProvider, but this can be hit and miss.
 
 ## Usage
 
