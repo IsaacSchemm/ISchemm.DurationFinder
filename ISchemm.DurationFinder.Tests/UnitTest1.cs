@@ -123,22 +123,12 @@ namespace ISchemm.DurationFinder.Tests {
 
         [TestMethod]
         public async Task TestTwitch() {
-            await TestUrl(11371, "https://www.twitch.tv/videos/1413747455");
-        }
-
-        [TestMethod]
-        public async Task TestDailymotion_1() {
-            await TestUrl(56, "http://www.dailymotion.com/video/x6h5cqp");
-        }
-
-        [TestMethod]
-        public async Task TestDailymotion_2() {
-            await TestUrl(181, "http://www.dailymotion.com/video/x6gxyji?playlist=x5np2u");
+            await TestUrl(60 * 19 + 24, "https://www.twitch.tv/videos/788022513");
         }
 
         [TestMethod]
         public async Task TestSoundCloud_1() {
-            await TestUrl(280, "https://soundcloud.com/jamieirl/pass-feat-marcy-nabors");
+            await TestUrl(60 * 39 + 1, "https://soundcloud.com/lingthusiasm/94-the-perfectly-imperfect-aspect-episode");
         }
 
         [TestMethod]

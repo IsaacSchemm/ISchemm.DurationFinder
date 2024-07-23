@@ -23,7 +23,6 @@ Additional providers that are not included in `Providers.All` but are used inter
 * YouTube (SchemaOrgDurationProvider)
 * SoundCloud (SchemaOrgDurationProvider)
 * Vimeo (OEmbedDurationProvider)
-* Dailymotion (OpenGraphDurationProvider)
 * HLS (HlsDurationProvider)
 * .mp4 (MP4DurationProvider)
 * .m4a (MP4DurationProvider)

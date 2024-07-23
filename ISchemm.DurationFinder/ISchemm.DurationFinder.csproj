@@ -5,7 +5,7 @@
 	<LangVersion>8.0</LangVersion>
 	<Nullable>enable</Nullable>
 	<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-	<Version>4.1.0</Version>
+	<Version>4.3.0</Version>
 	<Authors>IsaacSchemm</Authors>
 	<Description>A C# library to detect the duration of a video, given its URL</Description>
 	<RepositoryUrl>https://github.com/IsaacSchemm/ISchemm.DurationFinder</RepositoryUrl>
