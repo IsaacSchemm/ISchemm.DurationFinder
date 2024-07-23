@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ISchemm.DurationFinder {
     public class ChunklistDurationProvider : IDurationProvider {
         public async Task<TimeSpan?> GetDurationAsync(IDataSource dataSource) {
-            if (!dataSource.MatchesType("application/x-mpegURL", "application/x-vnd.apple.mpegURL", "audio/mpegURL", "audio/x-mpegURL"))
-                return null;
+            if (!dataSource.MatchesType(HlsDurationProvider.KnownMediaTypes.ToArray())) return null;
 
             byte[] body = await dataSource.ReadAsync();
             using var sr = new StreamReader(new MemoryStream(body));
