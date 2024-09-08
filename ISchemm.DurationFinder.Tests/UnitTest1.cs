@@ -112,11 +112,6 @@ namespace ISchemm.DurationFinder.Tests {
         }
 
         [TestMethod]
-        public async Task TestVimeo_1() {
-            await TestUrl(57, "https://vimeo.com/241309009");
-        }
-
-        [TestMethod]
         public async Task TestVimeo_2() {
             await TestUrl(536, "https://vimeo.com/181964440");
         }

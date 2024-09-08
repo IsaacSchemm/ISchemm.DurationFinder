@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.65" />
+    <PackageReference Include="ISchemm.MP4Support" Version="1.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
